@@ -32,6 +32,50 @@ module didOverflow
 
 endmodule
 
+module ander
+(
+    input a, 
+    input b, 
+);
+
+    wire AandB;
+
+    `AND  andgate(AandB, a, b);   // AND gate produces AandB from A and B
+endmodule
+
+module nander
+(
+    input a, 
+    input b, 
+);
+    wire AnandB;
+
+    `NAND nandgate(AandB, a, b); // NAND gate produces AnadB from A and B
+  
+endmodule
+
+module norer
+(
+    input a, 
+    input b, 
+);
+
+    wire AnorB;
+
+    `NOR  norgate(AnorB, a, b);  // NOR gate produces AonrB from A and B
+endmodule
+
+module orer
+(
+    input a, 
+    input b, 
+);
+
+    wire AorB;
+    `OR  orgate(AorB, a, b);   // OR gate produces AorB from A and B
+
+endmodule
+
 module structuralFullAdder
 (
     output sum, 
