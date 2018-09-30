@@ -2,7 +2,7 @@
 Paige Pfenninger, Lauren Pudvan, Sam Young
 
 
-1. Verilog: alu.v - 2.5 hours
+1. Verilog: alu.v - 2.5 hours (end of day 10/2)
    1. ADD / SUBTRACT: 20 minutes
    2. XOR - 5 minutes
    3. SLT (a<b) - 30 minutes
@@ -12,11 +12,13 @@ Paige Pfenninger, Lauren Pudvan, Sam Young
    7. OR - 5 minutes
    8. LUT - controls which one is outputted - 20 minutes
    9. Debugging - 1 hour
-1. Test Bench: alu.t.v - 3 hours
+2. Test Bench: alu.t.v - 3 hours (end of day 10/2)
    1. Come up with test cases - 1 hour
    2. Self Checking - 1 hour
    3. Debugging - < 1 hour
-1. Report - 4 hours
+3. FPGA - 1 hour (end of day 10/2)
+   1. Upload and simulation (1 hour)
+4. Report - 4 hours (end of day 10/4)
    1. Implementation - design choices - 40 minutes
    2. Test Results - what tests we chose and why - 1 hour
    3. Timing analysis - worst case propagation delay - 1 hour
