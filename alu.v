@@ -53,6 +53,41 @@ module structuralFullAdder
     
 endmodule
 
+module xorers
+(
+	output xorers,
+	input a,
+	input b, 
+);
+	'XOR   xorgate(xorers, a, b);
+endmodule
+
+module structuralFullSubtractor
+(
+    output sub, 
+    output carryout,
+    input a, 
+    input b, 
+    input carryin,
+    input subtract
+);
+
+	wire BxorSub;
+    wire xAorB;
+    wire AandB;
+    wire xAorBandCin;
+
+    `XOR  xorgate(BxorSub, b, subtract);
+    `XOR  xorgate(xAorB, a, BxorSub);   // OR gate produces AorB from A and B
+    `XOR  xorgate(sum, xAorB, carryin);
+    `AND  andgate(AandB, a, BxorSub);
+    `AND  andgate(xAorBandCin, xAorB, carryin);
+    `OR   orgate(carryout, AandB, xAorBandCin);
+    
+endmodule
+
+
+
 module FullAdder4bit
 (
   output[3:0] sum,  // 2's complement sum of a and b
