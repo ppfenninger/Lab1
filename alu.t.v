@@ -125,4 +125,27 @@ module testALU();
     	if(result != 32'd8) $display("n - p = p TEST FAILED - result: %d", result);
     	if(overflow != 1) $display("n - p = p OVERFLOW FAILED");
     	if(carryout != 1) $display("n - p = p CARRYOUT FAILED");
+
+    	$display("TESTING SLT");
+    	command=3'b011;
+    	a=32'd0;b=32'd1000; #1000
+    	if (result != 32'd1) $display("0 < p TEST FAILED");
+    	a=32'd1000;b=32'd0; #1000
+    	if (result != 32'd0) $display("p not < 0 TEST FAILED");
+    	a=32'd0;b=32'd3657483652; #1000
+    	if (result != 32'd0) $display("0 not < n TEST FAILED");
+    	a=32'd3657483652;b=32'd0; #1000
+    	if (result != 32'd1) $display("n < 0 TEST FAILED");
+    	a=32'd1000;b=32'd2000; #1000
+    	if (result != 32'd1) $display("p < p TEST FAILED");
+    	a=32'd2000;b=32'd1000; #1000
+    	if (result != 32'd0) $display("p not < p TEST FAILED");
+    	a=32'2360000008;b=32'd3657483652; #1000
+    	if (result != 32'd1) $display("n < n TEST FAILED");
+    	a=32'd3657483652;b=32'2360000008; #1000
+    	if (result != 32'd0) $display("n not < n TEST FAILED");
+    	a=32'd3657483652;b=32'd1000; #1000
+    	if (result != 32'd1) $display("n < p TEST FAILED");
+    	a=32'd1000;b=32'd3657483652; #1000
+    	if (result != 32'd0) $display("p not < n TEST FAILED");
 	end
