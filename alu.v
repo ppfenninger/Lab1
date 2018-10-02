@@ -32,6 +32,50 @@ module didOverflow
 
 endmodule
 
+module ander
+(
+    input a, 
+    input b, 
+);
+
+    wire AandB;
+
+    `AND  andgate(AandB, a, b);   // AND gate produces AandB from A and B
+endmodule
+
+module nander
+(
+    input a, 
+    input b, 
+);
+    wire AnandB;
+
+    `NAND nandgate(AandB, a, b); // NAND gate produces AnadB from A and B
+  
+endmodule
+
+module norer
+(
+    input a, 
+    input b, 
+);
+
+    wire AnorB;
+
+    `NOR  norgate(AnorB, a, b);  // NOR gate produces AonrB from A and B
+endmodule
+
+module orer
+(
+    input a, 
+    input b, 
+);
+
+    wire AorB;
+    `OR  orgate(AorB, a, b);   // OR gate produces AorB from A and B
+
+endmodule
+
 module structuralFullAdder
 (
     output sum, 
@@ -52,6 +96,41 @@ module structuralFullAdder
     `OR   orgate(carryout, AandB, xAorBandCin);
     
 endmodule
+
+module xorers
+(
+	output xorers,
+	input a,
+	input b, 
+);
+	'XOR   xorgate(xorers, a, b);
+endmodule
+
+module structuralFullSubtractor
+(
+    output sub, 
+    output carryout,
+    input a, 
+    input b, 
+    input carryin,
+    input subtract
+);
+
+	wire BxorSub;
+    wire xAorB;
+    wire AandB;
+    wire xAorBandCin;
+
+    `XOR  xorgate(BxorSub, b, subtract);
+    `XOR  xorgate(xAorB, a, BxorSub);   // OR gate produces AorB from A and B
+    `XOR  xorgate(sum, xAorB, carryin);
+    `AND  andgate(AandB, a, BxorSub);
+    `AND  andgate(xAorBandCin, xAorB, carryin);
+    `OR   orgate(carryout, AandB, xAorBandCin);
+    
+endmodule
+
+
 
 module FullAdder4bit
 (
