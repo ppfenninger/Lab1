@@ -3,6 +3,19 @@
 `define XOR xor #50
 `define NOT not #50
 
+module ALU
+(
+output[31:0]  result,
+output        carryout,
+output        zero,
+output        overflow,
+input[31:0]   operandA,
+input[31:0]   operandB,
+input[2:0]    command
+);
+	// Your code here
+endmodule
+
 module didOverflow
 (
     output overflow,
@@ -178,4 +191,45 @@ module FullAdder4bit
 	  .b (b[3]),
 	  .s (sum[3])
 	);
+endmodule
+
+// look up table needs editing 
+module ALUcontrolLUT
+//behavioral unit
+(
+output reg[2:0] 	muxindex,
+output reg		invertB,
+output reg		othercontrolsignal,
+...
+input[2:0]	ALUcommand
+)
+
+  always @(ALUcommand) begin
+    case (ALUcommand)
+      `ADD:  begin muxindex = 0; invertB=0; othercontrolsignal = ?; end    
+      `SUB:  begin muxindex = 0; invertB=1; othercontrolsignal = ?; end
+      `XOR:  begin muxindex = 1; invertB=?; othercontrolsignal = ?; end    
+      `SLT:  begin muxindex = 2; invertB=?; othercontrolsignal = ?; end
+      `AND:  begin muxindex = 3; invertB=?; othercontrolsignal = ?; end    
+      `NAND: begin muxindex = 3; invertB=?; othercontrolsignal = ?; end
+      `NOR:  begin muxindex = 4; invertB=?; othercontrolsignal = ?; end    
+      `OR:   begin muxindex = 4; invertB=?; othercontrolsignal = ?; end
+    endcase
+  end
+endmodule
+
+module AllBits
+#(parameter WIDTH=32)
+(
+	output [WIDTH-1:0] out,
+	input  [WIDTH-1:0] a, b
+);
+	genvari;
+	generate
+		for (i=0; i<WIDTH; i=i+1)
+		begin:genblock
+			wire _out;
+			ALUcontrolLUT(_out, a[i], b[i]);
+		end
+	endgenerate
 endmodule
