@@ -24,19 +24,19 @@ module testALU();
     	if(result != 32'b1110) $display("OR Test Failed - result: %b%b%b%b", result[3], result[2], result[1], result[0]);
 
     	// NOR Test
-    	command=3'b1110; #1000
+    	command=3'b110; #1000
     	if(result != 32'b0001) $display("NOR Test Failed - result: %b%b%b%b", result[3], result[2], result[1], result[0]);
 
     	// XOR Test
-    	command=3'b1110; #1000
+    	command=3'b010; #1000
     	if(result != 32'b0110) $display("XOR Test Failed - result: %b%b%b%b", result[3], result[2], result[1], result[0]);
 
     	// AND Test
-    	command=3'b1110; #1000
+    	command=3'b100; #1000
     	if(result != 32'b1000) $display("AND Test Failed - result: %b%b%b%b", result[3], result[2], result[1], result[0]);
 
     	// NAND Test
-    	command=3'b1110; #1000
+    	command=3'b101; #1000
     	if(result != 32'b0001) $display("NAND Test Failed - result: %b%b%b%b", result[3], result[2], result[1], result[0]);
 
     	$display("TESTING ADD");
@@ -140,12 +140,13 @@ module testALU();
     	if (result != 32'd1) $display("p < p TEST FAILED");
     	a=32'd2000;b=32'd1000; #1000
     	if (result != 32'd0) $display("p not < p TEST FAILED");
-    	a=32'2360000008;b=32'd3657483652; #1000
+    	a=32'd2360000008;b=32'd3657483652; #1000
     	if (result != 32'd1) $display("n < n TEST FAILED");
-    	a=32'd3657483652;b=32'2360000008; #1000
+    	a=32'd3657483652;b=32'd2360000008; #1000
     	if (result != 32'd0) $display("n not < n TEST FAILED");
     	a=32'd3657483652;b=32'd1000; #1000
     	if (result != 32'd1) $display("n < p TEST FAILED");
     	a=32'd1000;b=32'd3657483652; #1000
     	if (result != 32'd0) $display("p not < n TEST FAILED");
 	end
+endmodule // testALU
