@@ -1,7 +1,18 @@
-`define AND and #50
-`define OR or #50
-`define XOR xor #50
-`define NOT not #50
+//`define AND and #50
+//`define OR or #50
+//`define XOR xor #50
+//`define NOT not #50
+
+
+`define ADD  3'd0
+`define SUB  3'd1
+`define XOR  3'd2
+`define SLT  3'd3
+`define AND  3'd4
+`define NAND 3'd5
+`define NOR  3'd6
+`define OR   3'd7
+
 
 module ALU
 (
@@ -13,7 +24,13 @@ input[31:0]   operandA,
 input[31:0]   operandB,
 input[2:0]    command
 );
-	// Your code here
+	AllBits allbit1(
+  		.a(operandA),             // input
+  		.b(operandB),             // input
+  		.command(command), 	  // input
+  		.out(result)  		  // output
+		)
+);
 endmodule
 
 module didOverflow
@@ -129,7 +146,7 @@ module structuralFullSubtractor
     input subtract
 );
 
-	wire BxorSub;
+    wire BxorSub;
     wire xAorB;
     wire AandB;
     wire xAorBandCin;
@@ -193,28 +210,44 @@ module FullAdder4bit
 	);
 endmodule
 
+
+module behavioral4bitMultiplexer
+(
+    output out,
+    input address0, address1, address2,
+    input in0, in1, in2, in3, in4, in5, in6, in7 
+);
+    // Join single-bit inputs into a bus, use address as index
+    wire[7:0] inputs = {in7, in6, in5, in4, in3, in2, in1, in0};
+    wire[2:0] address = {address2, address1, address0};
+    assign out = inputs[address];
+endmodule
+
 // look up table needs editing 
 module ALUcontrolLUT
 //behavioral unit
 (
 output reg[2:0] 	muxindex,
 output reg		invertB,
-output reg		othercontrolsignal,
+//output reg		othercontrolsignal,
 ...
-input[2:0]	ALUcommand
+input[2:0]	ALUcommand,
+input a,
+input b,
 )
 
   always @(ALUcommand) begin
     case (ALUcommand)
-      `ADD:  begin muxindex = 0; invertB=0; othercontrolsignal = ?; end    
-      `SUB:  begin muxindex = 0; invertB=1; othercontrolsignal = ?; end
-      `XOR:  begin muxindex = 1; invertB=?; othercontrolsignal = ?; end    
-      `SLT:  begin muxindex = 2; invertB=?; othercontrolsignal = ?; end
-      `AND:  begin muxindex = 3; invertB=?; othercontrolsignal = ?; end    
-      `NAND: begin muxindex = 3; invertB=?; othercontrolsignal = ?; end
-      `NOR:  begin muxindex = 4; invertB=?; othercontrolsignal = ?; end    
-      `OR:   begin muxindex = 4; invertB=?; othercontrolsignal = ?; end
+      `ADD:  begin muxindex = 0; invertB=0; end    //othercontrolsignal = ?;
+      `SUB:  begin muxindex = 0; invertB=1; end	
+      `XOR:  begin muxindex = 1; invertB=0; end    
+      `SLT:  begin muxindex = 2; invertB=0; end
+      `AND:  begin muxindex = 3; invertB=0; end    
+      `NAND: begin muxindex = 3; invertB=1; end
+      `NOR:  begin muxindex = 4; invertB=1; end    
+      `OR:   begin muxindex = 4; invertB=0; end
     endcase
+	behavioral4bitMultiplexer mux() //sam work on this. 
   end
 endmodule
 
@@ -222,14 +255,16 @@ module AllBits
 #(parameter WIDTH=32)
 (
 	output [WIDTH-1:0] out,
-	input  [WIDTH-1:0] a, b
+	input  [WIDTH-1:0] a, b,
+	input command
 );
+	
 	genvari;
 	generate
 		for (i=0; i<WIDTH; i=i+1)
 		begin:genblock
-			wire _out;
-			ALUcontrolLUT(_out, a[i], b[i]);
+			ALUcontrolLUT aluTable(command, a[i], b[i], .out (out[i])
+			);
 		end
 	endgenerate
 endmodule
