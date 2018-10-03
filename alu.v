@@ -34,16 +34,20 @@ wire[31:0] resultXor;
 wire invert;
 wire invertedb;
 wire[4:0] muxI;
-
-	ALUcontrolLUT pickOperand(muxI, invertB, invert, command, operandA, operandB)
-	anderAndnander andernander1(resultsAndNand, operandA, operandB, invert)
-	ALUresultLUT pickOperand(finalResult, carryout, zero, overflow, muxI, resultAddSub, resultAndNand, resultSLT, resultOrNor, resultXor)
-
-
-);
+	//pick your operation
+	ALUcontrolLUT pickOperand(muxI, invertB, invert, command, operandA, operandB);
+	
+	//instantiate all the modules
+	andnand andernander1(resultsAndNand, operandA, operandB, invert);
+	ornor orernorer1(resultOrNor, operandA, operandB, invert);
+	FullAdderSubtractor32 addersubber1(resultAddSub, carryout, overflow, operandA, operandB, invertedb);
+	slt slter1(resultSLT, resultAddSub, overflow);
+  	xorer xorer1(resultXor, operandA, operandB);
+	//pick desired result
+	ALUresultLUT pickOperand(finalResult, carryout, zero, overflow, muxI, resultAddSub, resultAndNand, resultSLT, resultOrNor, resultXor);
 endmodule
 
-module anderAndnander
+module andnand
 (
     output res[31:0],
     input a[31:0], 
@@ -116,7 +120,7 @@ module anderAndnander
     `XOR  xorgate(res[30], AandB[30], invert);
 endmodule
 
-module orer
+module orNor
 (
     output res[31:0],
     input a[31:0], 
@@ -532,41 +536,6 @@ module slt
     `AND  andgate(res, invOverflow, subRes[31]) // if invover and bit1 are high. then slt result is high
 endmodule
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-module behavioral4bitMultiplexer
-(
-    output out,
-    input address0, address1, address2,
-    input in0, in1, in2, in3, in4, in5, in6, in7 
-);
-    // Join single-bit inputs into a bus, use address as index
-    wire[7:0] inputs = {in7, in6, in5, in4, in3, in2, in1, in0};
-    wire[2:0] address = {address2, address1, address0};
-    assign out = inputs[address];
-endmodule
-
-// look up table needs editing 
 module ALUcontrolLUT
 //behavioral unit
 (
@@ -601,15 +570,15 @@ output reg		carryout,
 output reg		zero,
 output reg		overflow,
 ...
-input[4:0]	muxIndex,
+input[4:0]  muxIndex,
 input[31:0] resultAddSub;
 input[31:0] resultAndNand;
 input[31:0] resultSLT;
 input[31:0] resultOrNor;
 input[31:0] resultXor;
-// carryout
-//zero
-//overflow
+// carryout need to add
+//zero need to add
+//overflow need to add
 
 )
   always @(ALUcommand) begin
