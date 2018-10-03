@@ -65,10 +65,12 @@ module testALU();
     	if(result != 32'd0) $display("n + p = 0 TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("n + p = 0 OVERFLOW FAILED");
     	if(carryout != 1) $display("n + p = 0 CARRYOUT FAILED");
+    	if(zero != 1) $display("ZERO FAILED - was not 1");
     	a=32'd3657483652;b=32'd637483645; #1000
     	if(result != 32'd1) $display("n + p = p TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("n + p = p OVERFLOW FAILED");
     	if(carryout != 1) $display("n + p = p CARRYOUT FAILED");
+    	if(zero != 0) $display("ZERO FAILED - was not 0");
     	a=32'd3657483652;b=32'd637483643; #1000
     	if(result != 32'd4294967295) $display("n + p = n TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("n + p = n OVERFLOW FAILED");
