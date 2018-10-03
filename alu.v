@@ -34,17 +34,34 @@ wire[31:0] resultXor;
 wire invert;
 wire invertedb;
 wire[4:0] muxI;
+wire midoverflow;
+wire midcarryout;
+wire midzeroer;
 	//pick your operation
 	ALUcontrolLUT pickOperand(muxI, invertB, invert, command, operandA, operandB);
 	
 	//instantiate all the modules
 	andnand andernander1(resultsAndNand, operandA, operandB, invert);
 	ornor orernorer1(resultOrNor, operandA, operandB, invert);
-	FullAdderSubtractor32 addersubber1(resultAddSub, carryout, overflow, operandA, operandB, invertedb);
-	slt slter1(resultSLT, resultAddSub, overflow);
-  	xorer xorer1(resultXor, operandA, operandB);
-	//pick desired result
-	ALUresultLUT pickOperand(finalResult, carryout, zero, overflow, muxI, resultAddSub, resultAndNand, resultSLT, resultOrNor, resultXor);
+	FullAdderSubtractor32 addersubber1(resultAddSub, midcarryout, overflow, operandA, operandB, invertedb);
+	slt slter1(resultSLT, resultAddSub, midoverflow);
+  xorer xorer1(resultXor, operandA, operandB);
+  zeroer zeroer1(midzeroer, resultAddSub, resultAndNand, resultSLT, resultOrNor, resultXor);
+	
+  //pick your result
+  ALUresultLUT pickOperand(result, carryout, zero, overflow, muxI, resultAddSub, resultAndNand, resultSLT, resultOrNor, resultXor, midoverflow, midcarryout, midzeroer);
+endmodule
+
+module zeroor
+(
+    output iszero,
+    input resultAddSub,
+    input resultAndNand,
+    input resultSLT,
+    input resultOrNor,
+    input resultXor
+);
+    `NOR  norgate(iszero, resultAddSub, resultAndNand, resultSLT, resultOrNor, resultXor);
 endmodule
 
 module andnand
@@ -571,19 +588,21 @@ output reg		zero,
 output reg		overflow,
 ...
 input[4:0]  muxIndex,
-input[31:0] resultAddSub;
-input[31:0] resultAndNand;
-input[31:0] resultSLT;
-input[31:0] resultOrNor;
-input[31:0] resultXor;
-// carryout need to add
+input[31:0] resultAddSub,
+input[31:0] resultAndNand,
+input[31:0] resultSLT,
+input[31:0] resultOrNor,
+input[31:0] resultXor,
+input midcarryout,
+input midoverflow,
+input midzeroer,
 //zero need to add
 //overflow need to add
 
 )
   always @(ALUcommand) begin
     case (ALUcommand)
-      0:  begin finalResult = resultAddSub; carryout=0; zero = 0; overflow = 0; end    
+      0:  begin finalResult = resultAddSub; carryout=midcarryout; zero = midzeroer; overflow = midoverflow; end    
       1:  begin finalResult = resultXor; carryout=0; zero = 0; overflow = 0; end	
       2:  begin finalResult = resultSLT; carryout=0; zero = 0; overflow = 0; end    
       3:  begin finalResult = resultAndNand; carryout=0; zero = 0; overflow = 0; end
