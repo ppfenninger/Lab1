@@ -24,12 +24,22 @@ input[31:0]   operandA,
 input[31:0]   operandB,
 input[2:0]    command
 );
-	AllBits allbit1(
-  		.a(operandA),             // input
-  		.b(operandB),             // input
-  		.command(command), 	  // input
-  		.out(result)  		  // output
-		)
+
+wire[31:0] resultAddSub;
+wire[31:0] resultAndNand;
+wire[31:0] resultSLT;
+wire[31:0] resultOrNor;
+wire[31:0] resultXor;
+
+wire invert;
+wire invertedb;
+wire[4:0] muxI;
+
+	ALUcontrolLUT pickOperand(muxI, invertB, invert, command, operandA, operandB)
+	anderAndnander andernander1(resultsAndNand, operandA, operandB, invert)
+	ALUresultLUT pickOperand(finalResult, carryout, zero, overflow, muxI, resultAddSub, resultAndNand, resultSLT, resultOrNor, resultXor)
+
+
 );
 endmodule
 
@@ -299,7 +309,7 @@ module ALUcontrolLUT
 (
 output reg[2:0] 	muxindex,
 output reg		invertB,
-//output reg		othercontrolsignal,
+output reg		inverted,
 ...
 input[2:0]	ALUcommand,
 input a,
@@ -308,18 +318,49 @@ input b,
 
   always @(ALUcommand) begin
     case (ALUcommand)
-      `ADD:  begin muxindex = 0; invertB=0; end    //othercontrolsignal = ?;
-      `SUB:  begin muxindex = 0; invertB=1; end	
-      `XOR:  begin muxindex = 1; invertB=0; end    
-      `SLT:  begin muxindex = 2; invertB=0; end
-      `AND:  begin muxindex = 3; invertB=0; end    
-      `NAND: begin muxindex = 3; invertB=1; end
-      `NOR:  begin muxindex = 4; invertB=1; end    
-      `OR:   begin muxindex = 4; invertB=0; end
+      `ADD:  begin muxindex = 0; invertB=0; inverted = 0; end    
+      `SUB:  begin muxindex = 0; invertB=1; inverted = 0; end	
+      `XOR:  begin muxindex = 1; invertB=0; inverted = 0; end    
+      `SLT:  begin muxindex = 2; invertB=0; inverted = 0; end
+      `AND:  begin muxindex = 3; invertB=0; inverted = 0; end    
+      `NAND: begin muxindex = 3; invertB=1; inverted = 1; end
+      `NOR:  begin muxindex = 4; invertB=1; inverted = 1; end    
+      `OR:   begin muxindex = 4; invertB=0; inverted = 0; end
     endcase
-	behavioral4bitMultiplexer mux() //sam work on this. 
   end
 endmodule
+
+module ALUresultLUT
+//behavioral unit
+(
+output reg[31:0] 	finalResult,
+output reg		carryout,
+output reg		zero,
+output reg		overflow,
+...
+input[4:0]	muxIndex,
+input[31:0] resultAddSub;
+input[31:0] resultAndNand;
+input[31:0] resultSLT;
+input[31:0] resultOrNor;
+input[31:0] resultXor;
+// carryout
+//zero
+//overflow
+
+)
+  always @(ALUcommand) begin
+    case (ALUcommand)
+      0:  begin finalResult = resultAddSub; carryout=0; zero = 0; overflow = 0; end    
+      1:  begin finalResult = resultXor; carryout=0; zero = 0; overflow = 0; end	
+      2:  begin finalResult = resultSLT; carryout=0; zero = 0; overflow = 0; end    
+      3:  begin finalResult = resultAndNand; carryout=0; zero = 0; overflow = 0; end
+      4:  begin finalResult = resultOrNor; carryout=0; zero = 0; overflow = 0; end    
+    endcase
+  end
+endmodule
+
+
 
 module AllBits
 #(parameter WIDTH=32)
