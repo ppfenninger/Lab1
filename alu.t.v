@@ -107,18 +107,18 @@ module testALU();
     	if(overflow != 0) $display("p - p = p OVERFLOW FAILED");
     	if(carryout != 1) $display("p - p = p CARRYOUT FAILED");
     	if(zero != 0) $display("ZERO FAILED - was not 0");
-    	operandA=32'd436258181;operandB=32'd2013265920; #1000
-    	if(result != 32'd2449524101) $display("p - p = n TEST FAILED - result: %d", result); //result is equivalent to -1845443195
+    	operandA=32'd436258181;operandB=32'd2013265920; #1000 //BAD
+    	if(result != 32'd2717959557) $display("p - p = n TEST FAILED - result: %d", result); //result is equivalent to -1845443195
     	if(overflow != 0) $display("p - p = n OVERFLOW FAILED");
     	if(carryout != 0) $display("p - p = n CARRYOUT FAILED");
     	operandA=32'd3657483652;operandB=32'd3657483653; #1000 //a and b both correspond to negative numbers
     	if(result != 32'd4294967295) $display("n - n = n TEST FAILED - result: %d", result); //the result is also a negative twos complement number
     	if(overflow != 0) $display("n - n = n OVERFLOW FAILED");
     	if(carryout != 0) $display("n - n = n CARRYOUT FAILED");
-    	operandA=32'd3657483652;operandB=32'd3657483653; #1000
+    	operandA=32'd3657483652;operandB=32'd3657483651; #1000  
     	if(result != 32'd1) $display("n - n = p TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("n - n = p OVERFLOW FAILED");
-    	if(carryout != 0) $display("n - n = p CARRYOUT FAILED");
+    	if(carryout != 1) $display("n - n = p CARRYOUT FAILED");
     	operandA=32'd7000;operandB=32'd4294953296 ; #1000 //b is the equivalent of -14000
     	if(result != 32'd21000) $display("p - n = p TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("p - n = p OVERFLOW FAILED");
