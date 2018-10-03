@@ -26,6 +26,7 @@ module testALU();
     	// NOR Test
     	command=3'b110; #1000
     	if(result != 32'b11111111111111111111111111110001) $display("NOR Test Failed - result: %b%b%b%b", result[3], result[2], result[1], result[0]);
+    	if(zero != 0) $display("ZERO FAILED - was not 0");
 
     	// XOR Test
     	command=3'b010; #1000
@@ -49,28 +50,32 @@ module testALU();
     	if(result != 32'd2147497647) $display("p + p = n TEST FAILED - result: %d", result);
     	if(overflow != 1) $display("p + p = n OVERFLOW FAILED");
     	if(carryout != 0) $display("p + p = n CARRYOUT FAILED");
+    	if(zero != 0) $display("ZERO FAILED - was not 0 part 1");
     	operandA=32'd0;operandB=32'd87000; #1000
     	if(result != 32'd87000) $display("0 + p = p TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("0 + p = p OVERFLOW FAILED");
     	if(carryout != 0) $display("0 + p = p CARRYOUT FAILED");
+    	if(zero != 0) $display("ZERO FAILED - was not 0 part 2");
     	operandA=32'd3657483652;operandB=32'd2997483652; #1000
     	if(result != 32'd2360000008) $display("n + n = n TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("n + n = n OVERFLOW FAILED");
     	if(carryout != 1) $display("n + n = n CARRYOUT FAILED");
+    	if(zero != 0) $display("ZERO FAILED - was not 0 part 3");
     	operandA=32'd2147483652;operandB=32'd2147483652; #1000
     	if(result != 32'd8) $display("n + n = p TEST FAILED - result: %d", result);
     	if(overflow != 1) $display("n + n = p OVERFLOW FAILED");
     	if(carryout != 1) $display("n + n = p CARRYOUT FAILED");
+    	if(zero != 0) $display("ZERO FAILED - was not 0 part 4");
     	operandA=32'd3657483652;operandB=32'd637483644; #1000
     	if(result != 32'd0) $display("n + p = 0 TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("n + p = 0 OVERFLOW FAILED");
     	if(carryout != 1) $display("n + p = 0 CARRYOUT FAILED");
-    	if(zero != 1) $display("ZERO FAILED - was not 1");
+    	if(zero != 1) $display("ZERO FAILED - was 0");
     	operandA=32'd3657483652;operandB=32'd637483645; #1000
     	if(result != 32'd1) $display("n + p = p TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("n + p = p OVERFLOW FAILED");
     	if(carryout != 1) $display("n + p = p CARRYOUT FAILED");
-    	if(zero != 0) $display("ZERO FAILED - was not 0");
+    	if(zero != 0) $display("ZERO FAILED - was not 0 part 5");
     	operandA=32'd3657483652;operandB=32'd637483643; #1000
     	if(result != 32'd4294967295) $display("n + p = n TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("n + p = n OVERFLOW FAILED");
@@ -83,8 +88,6 @@ module testALU();
     	if(result != 32'd3657483652) $display("0 - p = n TEST FAILED - result: %d", result); //the result is equivalent to -637483644
     	if(overflow != 0) $display("0 - p = n OVERFLOW FAILED");
     	if(carryout != 0) $display("0 - p = n CARRYOUT FAILED");
-    	$display("results: %b", result);
-    	$display("results: %d", result);
     	operandA=32'd0;operandB=32'd3657483652; #1000 // b is equivalent to -637483644
     	if(result != 32'd637483644) $display("0 - n = p TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("0 - n = p OVERFLOW FAILED");
@@ -93,14 +96,17 @@ module testALU();
     	if(result != 32'd0) $display("n - n = 0 TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("n - n = 0 OVERFLOW FAILED");
     	if(carryout != 1) $display("n - n = 0 CARRYOUT FAILED");
+    	if(zero != 1) $display("ZERO FAILED - was 0 part 1");
     	operandA=32'd637483644;operandB=32'd637483644; #1000
     	if(result != 32'd0) $display("p - p = 0 TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("p - p = 0 OVERFLOW FAILED");
     	if(carryout != 1) $display("p - p = 0 CARRYOUT FAILED");
+    	if(zero != 1) $display("ZERO FAILED - was 0 part 2");
     	operandA=32'd436258181;operandB=32'd236258181; #1000
     	if(result != 32'd200000000) $display("p - p = p TEST FAILED - result: %d", result);
     	if(overflow != 0) $display("p - p = p OVERFLOW FAILED");
     	if(carryout != 1) $display("p - p = p CARRYOUT FAILED");
+    	if(zero != 0) $display("ZERO FAILED - was not 0");
     	operandA=32'd436258181;operandB=32'd2013265920; #1000
     	if(result != 32'd2449524101) $display("p - p = n TEST FAILED - result: %d", result); //result is equivalent to -1845443195
     	if(overflow != 0) $display("p - p = n OVERFLOW FAILED");
@@ -150,7 +156,9 @@ module testALU();
     	if (result != 32'd0) $display("n not < n TEST FAILED %b", result);
     	operandA=32'd3657483652;operandB=32'd1000; #1000
     	if (result != 32'd1) $display("n < p TEST FAILED");
+    	if(zero != 0) $display("ZERO FAILED - was not 1");
     	operandA=32'd1000;operandB=32'd3657483652; #1000
     	if (result != 32'd0) $display("p not < n TEST FAILED");
+    	if(zero != 32'd1) $display("ZERO FAILED - was 0 %b   %b ", zero, result);
 	end
 endmodule // testALU
