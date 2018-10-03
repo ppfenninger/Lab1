@@ -147,7 +147,7 @@ module testALU();
     	operandA=32'd2360000008;operandB=32'd3657483652; #1000
     	if (result != 32'd1) $display("n < n TEST FAILED");
     	operandA=32'd3657483652;operandB=32'd2360000008; #1000
-    	if (result != 32'd0) $display("n not < n TEST FAILED");
+    	if (result != 32'd0) $display("n not < n TEST FAILED %b", result);
     	operandA=32'd3657483652;operandB=32'd1000; #1000
     	if (result != 32'd1) $display("n < p TEST FAILED");
     	operandA=32'd1000;operandB=32'd3657483652; #1000

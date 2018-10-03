@@ -47,7 +47,7 @@ module AdderAndSubtractor
     wire xAorBandCin;
     `XOR  xorgate(BxorSub, b, isSubtract);
     `XOR  xorgate(xAorB, a, BxorSub);   // OR gate produces AorB from A and B
-    `XOR  xorgate(res, xAorB, isSubtract);
+    `XOR  xorgate(res, xAorB, carryin);
     `AND  andgate(AandB, a, BxorSub);
     `AND  andgate(xAorBandCin, xAorB, carryin);
     `OR   orgate(carryout, AandB, xAorBandCin);
@@ -84,6 +84,7 @@ module aluBitSlice
     wire isXor;
     wire isAnd;
     wire isNand;
+    wire isSLT;
 
     `AND(andRes, a, b);
     `NAND(nandRes, a, b);
@@ -107,12 +108,13 @@ module aluBitSlice
     `AND(isAdd, addSub, s0inv, s1inv, s2inv);
     `AND(isSub, addSub, s0, s1inv, s2inv);
     `AND(isXor, xorRes, s0inv, s1, s2inv);
+    `AND(isSLT, addSub, s0, s1, s2inv);
     `AND(isAnd, andRes, s0inv, s1inv, s2);
     `AND(isNand, nandRes, s0, s1inv, s2);
     `AND(isNor, norRes, s0inv, s1, s2);
     `AND(isOr, orRes, s0, s1, s2);
 
-    `OR(initialResult, isAdd, isSub, isXor, isAnd, isNand, isNor, isOr);
+    `OR(initialResult, isAdd, isSub, isXor, isAnd, isNand, isNor, isOr, isSLT);
 
 endmodule
 
@@ -162,25 +164,27 @@ module alu (
         .sub (isSubtract)
     );
 
-    wire s3inv;
+    wire s2inv;
     wire overflowInv;
     wire isSLTinv;
     wire isSLT;
+    wire SLTval;
 
-    `NOT(s3inv, command[2]);
+    `NOT(s2inv, command[2]);
     `NOT(overflowInv, overflow);
-    `AND(isSLT, initialResult[31], overflowInv, s3inv, command[0], command[1]);
+    `AND(isSLT, s2inv, command[0], command[1]);
     `NOT(isSLTinv, isSLT);
+    `AND(SLTval, initialResult[31], overflowInv, isSLT);
 
     generate
         genvar j;
-        for (j=0; j<31; j=j+1)
+        for (j=1; j<32; j=j+1)
         begin
             `AND(result[j], initialResult[j], isSLTinv);
         end
     endgenerate
 
-    `OR(result[31], initialResult[31], isSLT);
+    `OR(result[0], initialResult[0], SLTval);
     `NOR(zero, result[1]);
 
 endmodule
