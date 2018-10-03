@@ -1,17 +1,19 @@
-//`define AND and #50
-//`define OR or #50
-//`define XOR xor #50
-//`define NOT not #50
+`define AND and #50
+`define OR or #50
+`define XOR xor #50
+`define NOT not #50
+`define NAND nand #50
+`define NOR nor #50
 
 
-`define ADD  3'd0
-`define SUB  3'd1
-`define XOR  3'd2
-`define SLT  3'd3
-`define AND  3'd4
-`define NAND 3'd5
-`define NOR  3'd6
-`define OR   3'd7
+`define ADD1 3'd0
+`define SUB1  3'd1
+`define XOR1  3'd2
+`define SLT1  3'd3
+`define AND1  3'd4
+`define NAND1 3'd5
+`define NOR1  3'd6
+`define OR1   3'd7
 
 
 module ALU
@@ -24,16 +26,47 @@ input[31:0]   operandA,
 input[31:0]   operandB,
 input[2:0]    command
 );
-	AllBits allbit1(
-  		.a(operandA),             // input
-  		.b(operandB),             // input
-  		.command(command), 	  // input
-  		.out(result)  		  // output
-		)
-);
+
+wire[31:0] resultAddSub;
+wire[31:0] resultAndNand;
+wire[31:0] resultSLT;
+wire[31:0] resultOrNor;
+wire[31:0] resultXor;
+
+wire invert;
+wire invertedb;
+wire[4:0] muxI;
+wire midoverflow;
+wire midcarryout;
+wire midzeroer;
+	//pick your operation
+	ALUcontrolLUT pickOperand(muxI, invertB, invert, command, operandA, operandB);
+	
+	//instantiate all the modules
+	andnand andernander1(resultsAndNand, operandA, operandB, invert);
+	ornor orernorer1(resultOrNor, operandA, operandB, invert);
+	FullAdderSubtractor32 addersubber1(resultAddSub, midcarryout, overflow, operandA, operandB, invertedb);
+	slt slter1(resultSLT, resultAddSub, midoverflow);
+  xorer xorer1(resultXor, operandA, operandB);
+  zeroer zeroer1(midzeroer, resultAddSub, resultAndNand, resultSLT, resultOrNor, resultXor);
+	
+  //pick your result
+  ALUresultLUT pickOperand(result, carryout, zero, overflow, muxI, resultAddSub, resultAndNand, resultSLT, resultOrNor, resultXor, midoverflow, midcarryout, midzeroer);
 endmodule
 
-module anderAndnander
+module zeroor
+(
+    output iszero,
+    input resultAddSub,
+    input resultAndNand,
+    input resultSLT,
+    input resultOrNor,
+    input resultXor
+);
+    `NOR  norgate(iszero, resultAddSub, resultAndNand, resultSLT, resultOrNor, resultXor);
+endmodule
+
+module andnand
 (
     output res[31:0],
     input a[31:0], 
@@ -106,14 +139,15 @@ module anderAndnander
     `XOR  xorgate(res[30], AandB[30], invert);
 endmodule
 
-module orer
+module orNor
 (
     output res[31:0],
     input a[31:0], 
     input b[31:0],
     input invert 
 );  // OR gate produces AorB from A and B
-    wire AorB[31:0];
+    wire[31:0] AorB;
+
     `OR  orgate(AorB[0], a[0], b[0]);
     `OR  orgate(AorB[1], a[1], b[1]);
     `OR  orgate(AorB[2], a[2], b[2]);
@@ -252,7 +286,7 @@ module AdderAndSubtractorBitSlice
     output carryout,
     input a, 
     input b, 
-    input carryinSub,
+    input carryinSub
 );
     wire BxorSub;
     wire xAorB;
@@ -272,10 +306,10 @@ module FullAdderSubtractor32bit
   output carryout,  // Carry out of the summation of a and b
   output overflow,  // True if the calculation resulted in an overflow
   input[31:0] a,     // First operand in 2's complement format
-  input[31:0] b      // Second operand in 2's complement format
+  input[31:0] b,      // Second operand in 2's complement format
   input subtract
 );
-  wire carryout[30:0];
+  wire[30:0] carryout;
 
   AdderAndSubtractorBitSlice addsub0 (
     .res (res[0]),
@@ -519,80 +553,77 @@ module slt
 );
     wire invOverflow;
     `NOT  invgate(invOverflow, overflow); // inverts overflow
-    `AND  andgate(res, invOverflow, subRes[31]) // if invover and bit1 are high. then slt result is high
+    `AND  andgate(res, invOverflow, subRes[31]); // if invover and bit1 are high. then slt result is high
 endmodule
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-module behavioral4bitMultiplexer
-(
-    output out,
-    input address0, address1, address2,
-    input in0, in1, in2, in3, in4, in5, in6, in7 
-);
-    // Join single-bit inputs into a bus, use address as index
-    wire[7:0] inputs = {in7, in6, in5, in4, in3, in2, in1, in0};
-    wire[2:0] address = {address2, address1, address0};
-    assign out = inputs[address];
-endmodule
-
-// look up table needs editing 
 module ALUcontrolLUT
 //behavioral unit
 (
 output reg[2:0] 	muxindex,
 output reg		invertB,
-//output reg		othercontrolsignal,
-...
+output reg		inverted,
 input[2:0]	ALUcommand,
 input a,
-input b,
-)
+input b
+);
 
   always @(ALUcommand) begin
     case (ALUcommand)
-      `ADD:  begin muxindex = 0; invertB=0; end    //othercontrolsignal = ?;
-      `SUB:  begin muxindex = 0; invertB=1; end	
-      `XOR:  begin muxindex = 1; invertB=0; end    
-      `SLT:  begin muxindex = 2; invertB=0; end
-      `AND:  begin muxindex = 3; invertB=0; end    
-      `NAND: begin muxindex = 3; invertB=1; end
-      `NOR:  begin muxindex = 4; invertB=1; end    
-      `OR:   begin muxindex = 4; invertB=0; end
+      `ADD1:  begin muxindex = 0; invertB=0; inverted = 0; end    
+      `SUB1:  begin muxindex = 0; invertB=1; inverted = 0; end	
+      `XOR1:  begin muxindex = 1; invertB=0; inverted = 0; end    
+      `SLT1:  begin muxindex = 2; invertB=0; inverted = 0; end
+      `AND1:  begin muxindex = 3; invertB=0; inverted = 0; end    
+      `NAND1: begin muxindex = 3; invertB=1; inverted = 1; end
+      `NOR1:  begin muxindex = 4; invertB=1; inverted = 1; end    
+      `OR1:   begin muxindex = 4; invertB=0; inverted = 0; end
     endcase
-	behavioral4bitMultiplexer mux() //sam work on this. 
   end
 endmodule
+
+module ALUresultLUT
+//behavioral unit
+(
+output reg[31:0] 	finalResult,
+output reg		carryout,
+output reg		zero,
+output reg		overflow,
+input[4:0]  muxIndex,
+input[31:0] resultAddSub,
+input[31:0] resultAndNand,
+input[31:0] resultSLT,
+input[31:0] resultOrNor,
+input[31:0] resultXor,
+input midcarryout,
+input midoverflow,
+input midzeroer
+//zero need to add
+//overflow need to add
+
+);
+  always @(ALUcommand) begin
+    case (ALUcommand)
+      0:  begin finalResult = resultAddSub; carryout=midcarryout; zero = midzeroer; overflow = midoverflow; end    
+      1:  begin finalResult = resultXor; carryout=0; zero = 0; overflow = 0; end	
+      2:  begin finalResult = resultSLT; carryout=0; zero = 0; overflow = 0; end    
+      3:  begin finalResult = resultAndNand; carryout=0; zero = 0; overflow = 0; end
+      4:  begin finalResult = resultOrNor; carryout=0; zero = 0; overflow = 0; end    
+    endcase
+  end
+endmodule
+
+
 
 module AllBits
 #(parameter WIDTH=32)
 (
-	output [WIDTH-1:0] out,
-	input  [WIDTH-1:0] a, b,
+	output[WIDTH-1:0] out,
+	input[WIDTH-1:0] a, 
+  input[WIDTH-1:0] b,
 	input command
 );
 	
-	genvari;
+  // genvar
 	generate
 		for (i=0; i<WIDTH; i=i+1)
 		begin:genblock
