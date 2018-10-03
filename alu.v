@@ -33,35 +33,6 @@ input[2:0]    command
 );
 endmodule
 
-module didOverflow
-(
-    output overflow,
-    input a, 
-    input b, 
-    input s
-);
-	wire notA;
-	wire notB;
-	wire notS;
-    wire aAndB;
-    wire notaAndNotb;
-    wire negToPos;
-    wire posToNeg;
-
-    `NOT aNot(notA, a);
-    `NOT bNot(notB, b);
-    `NOT sNot(notS, s);
-
-    `AND andab(aAndB, a, b);
-    `AND andabNot(notaAndNotb, notA, notB);
-
-    `AND andSwitch1(negToPos, aAndB, notS);
-    `AND andSwitch2(posToNeg, notaAndNotb, s);
-
-    `OR orGate(overflow, negToPos, posToNeg);
-
-endmodule
-
 module anderAndnander
 (
     output res[31:0],
@@ -248,6 +219,298 @@ module xorer
   `XOR  xorgate(xorer[31], a[31], b[31]);
 endmodule
 
+module didOverflow
+(
+    output overflow,
+    input a, 
+    input b, 
+    input s, // most sig bit
+    input sub
+);
+    wire BxorSub;
+    wire notA;
+    wire notB;
+    wire notS;
+    wire aAndB;
+    wire notaAndNotb;
+    wire negToPos;
+    wire posToNeg;
+    `XOR xorgate(BxorSub, b, sub);
+    `NOT aNot(notA, a);
+    `NOT bNot(notB, BxorSub);
+    `NOT sNot(notS, s);
+    `AND andab(aAndB, a, BxorSub);
+    `AND andabNot(notaAndNotb, notA, notB);
+    `AND andSwitch1(negToPos, aAndB, notS);
+    `AND andSwitch2(posToNeg, notaAndNotb, s);
+    `OR orGate(overflow, negToPos, posToNeg);
+endmodule
+
+module AdderAndSubtractorBitSlice
+(
+    output res, 
+    output carryout,
+    input a, 
+    input b, 
+    input carryinSub,
+);
+    wire BxorSub;
+    wire xAorB;
+    wire AandB;
+    wire xAorBandCin;
+    `XOR  xorgate(BxorSub, b, carryinSub);
+    `XOR  xorgate(xAorB, a, BxorSub);   // OR gate produces AorB from A and B
+    `XOR  xorgate(res, xAorB, carryinSub);
+    `AND  andgate(AandB, a, BxorSub);
+    `AND  andgate(xAorBandCin, xAorB, carryin);
+    `OR   orgate(carryout, AandB, xAorBandCin);
+endmodule
+
+module FullAdderSubtractor32bit
+(
+  output[31:0] res,  // 2's complement sum of a and b
+  output carryout,  // Carry out of the summation of a and b
+  output overflow,  // True if the calculation resulted in an overflow
+  input[31:0] a,     // First operand in 2's complement format
+  input[31:0] b      // Second operand in 2's complement format
+  input subtract
+);
+  wire carryout[30:0];
+
+  AdderAndSubtractorBitSlice addsub0 (
+    .res (res[0]),
+    .carryout (carryout[0]),
+    .a (a[0]),
+    .b (b[0]),
+    .carryinSub (subtract)
+  );
+  AdderAndSubtractorBitSlice addsub1 (
+    .res (res[1]),
+    .carryout (carryout[1]),
+    .a (a[1]),
+    .b (b[1]),
+    .carryinSub (carryout[0])
+  );
+  AdderAndSubtractorBitSlice addsub2 (
+    .res (res[2]),
+    .carryout (carryout[2]),
+    .a (a[2]),
+    .b (b[2]),
+    .carryinSub (carryout[1])
+  );
+  AdderAndSubtractorBitSlice addsub3 (
+    .res (res[3]),
+    .carryout (carryout[3]),
+    .a (a[3]),
+    .b (b[3]),
+    .carryinSub (carryout[2])
+  );
+  AdderAndSubtractorBitSlice addsub4 (
+    .res (res[4]),
+    .carryout (carryout[4]),
+    .a (a[4]),
+    .b (b[4]),
+    .carryinSub (carryout[3])
+  );
+  AdderAndSubtractorBitSlice addsub5 (
+    .res (res[5]),
+    .carryout (carryout[5]),
+    .a (a[5]),
+    .b (b[5]),
+    .carryinSub (carryout[4])
+  );
+  AdderAndSubtractorBitSlice addsub6 (
+    .res (res[6]),
+    .carryout (carryout[6]),
+    .a (a[6]),
+    .b (b[6]),
+    .carryinSub (carryout[5])
+  );
+  AdderAndSubtractorBitSlice addsub7 (
+    .res (res[7]),
+    .carryout (carryout[7]),
+    .a (a[7]),
+    .b (b[7]),
+    .carryinSub (carryout[6])
+  );
+  AdderAndSubtractorBitSlice addsub8 (
+    .res (res[8]),
+    .carryout (carryout[8]),
+    .a (a[8]),
+    .b (b[8]),
+    .carryinSub (carryout[7])
+  );
+  AdderAndSubtractorBitSlice addsub9 (
+    .res (res[9]),
+    .carryout (carryout[9]),
+    .a (a[9]),
+    .b (b[9]),
+    .carryinSub (carryout[8])
+  );
+  AdderAndSubtractorBitSlice addsub10 (
+    .res (res[10]),
+    .carryout (carryout[10]),
+    .a (a[10]),
+    .b (b[10]),
+    .carryinSub (carryout[9])
+  );
+  AdderAndSubtractorBitSlice addsub11 (
+    .res (res[11]),
+    .carryout (carryout[11]),
+    .a (a[11]),
+    .b (b[11]),
+    .carryinSub (carryout[10])
+  );
+  AdderAndSubtractorBitSlice addsub12 (
+    .res (res[12]),
+    .carryout (carryout[12]),
+    .a (a[12]),
+    .b (b[12]),
+    .carryinSub (carryout[11])
+  );
+  AdderAndSubtractorBitSlice addsub13 (
+    .res (res[13]),
+    .carryout (carryout[13]),
+    .a (a[13]),
+    .b (b[13]),
+    .carryinSub (carryout[12])
+  );
+  AdderAndSubtractorBitSlice addsub14 (
+    .res (res[14]),
+    .carryout (carryout[14]),
+    .a (a[14]),
+    .b (b[14]),
+    .carryinSub (carryout[13])
+  );
+  AdderAndSubtractorBitSlice addsub15 (
+    .res (res[15]),
+    .carryout (carryout[15]),
+    .a (a[15]),
+    .b (b[15]),
+    .carryinSub (carryout[14])
+  );
+  AdderAndSubtractorBitSlice addsub16 (
+    .res (res[16]),
+    .carryout (carryout[16]),
+    .a (a[16]),
+    .b (b[16]),
+    .carryinSub (carryout[15])
+  );
+  AdderAndSubtractorBitSlice addsub17 (
+    .res (res[17]),
+    .carryout (carryout[17]),
+    .a (a[17]),
+    .b (b[17]),
+    .carryinSub (carryout[16])
+  );
+  AdderAndSubtractorBitSlice addsub18 (
+    .res (res[18]),
+    .carryout (carryout[18]),
+    .a (a[18]),
+    .b (b[18]),
+    .carryinSub (carryout[17])
+  );
+  AdderAndSubtractorBitSlice addsub19 (
+    .res (res[19]),
+    .carryout (carryout[19]),
+    .a (a[19]),
+    .b (b[19]),
+    .carryinSub (carryout[18])
+  );
+  AdderAndSubtractorBitSlice addsub20 (
+    .res (res[20]),
+    .carryout (carryout[20]),
+    .a (a[20]),
+    .b (b[20]),
+    .carryinSub (carryout[19])
+  );
+  AdderAndSubtractorBitSlice addsub21 (
+    .res (res[21]),
+    .carryout (carryout[21]),
+    .a (a[21]),
+    .b (b[21]),
+    .carryinSub (carryout[20])
+  );
+  AdderAndSubtractorBitSlice addsub22 (
+    .res (res[22]),
+    .carryout (carryout[22]),
+    .a (a[22]),
+    .b (b[22]),
+    .carryinSub (carryout[21])
+  );
+  AdderAndSubtractorBitSlice addsub23 (
+    .res (res[23]),
+    .carryout (carryout[23]),
+    .a (a[23]),
+    .b (b[23]),
+    .carryinSub (carryout[22])
+  );
+  AdderAndSubtractorBitSlice addsub24 (
+    .res (res[24]),
+    .carryout (carryout[24]),
+    .a (a[24]),
+    .b (b[24]),
+    .carryinSub (carryout[23])
+  );
+  AdderAndSubtractorBitSlice addsub25 (
+    .res (res[25]),
+    .carryout (carryout[25]),
+    .a (a[25]),
+    .b (b[25]),
+    .carryinSub (carryout[24])
+  );
+  AdderAndSubtractorBitSlice addsub26 (
+    .res (res[26]),
+    .carryout (carryout[26]),
+    .a (a[26]),
+    .b (b[26]),
+    .carryinSub (carryout[25])
+  );
+  AdderAndSubtractorBitSlice addsub27 (
+    .res (res[27]),
+    .carryout (carryout[27]),
+    .a (a[27]),
+    .b (b[27]),
+    .carryinSub (carryout[26])
+  );
+  AdderAndSubtractorBitSlice addsub28 (
+    .res (res[28]),
+    .carryout (carryout[28]),
+    .a (a[28]),
+    .b (b[28]),
+    .carryinSub (carryout[27])
+  );
+  AdderAndSubtractorBitSlice addsub29 (
+    .res (res[29]),
+    .carryout (carryout[29]),
+    .a (a[29]),
+    .b (b[29]),
+    .carryinSub (carryout[28])
+  );
+  AdderAndSubtractorBitSlice addsub30 (
+    .res (res[30]),
+    .carryout (carryout[30]),
+    .a (a[30]),
+    .b (b[30]),
+    .carryinSub (carryout[29])
+  );
+  AdderAndSubtractorBitSlice addsub31 (
+    .res (res[31]),
+    .carryout (carryout[31]),
+    .a (a[31]),
+    .b (b[31]),
+    .carryinSub (carryout[30])
+  );
+
+
+  didOverflow over1 (
+    .overflow (overflow),
+    .a (a[3]),
+    .b (b[3]),
+    .s (sum[3])
+  );
+endmodule
+
 module slt
 (
     output res,
@@ -259,27 +522,27 @@ module slt
     `AND  andgate(res, invOverflow, subRes[31]) // if invover and bit1 are high. then slt result is high
 endmodule
 
-module AdderAndSubtractor
-(
-    output res, 
-    output carryout,
-    input a, 
-    input b, 
-    input carryin,
-    input subtract
-);
-    wire BxorSub;
-    wire xAorB;
-    wire AandB;
-    wire xAorBandCin;
 
-    `XOR  xorgate(BxorSub, b, subtract);
-    `XOR  xorgate(xAorB, a, BxorSub);   // OR gate produces AorB from A and B
-    `XOR  xorgate(res, xAorB, carryin);
-    `AND  andgate(AandB, a, BxorSub);
-    `AND  andgate(xAorBandCin, xAorB, carryin);
-    `OR   orgate(carryout, AandB, xAorBandCin);
-endmodule
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 module behavioral4bitMultiplexer
 (
