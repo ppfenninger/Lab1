@@ -1,6 +1,6 @@
 //ALU testbench
 `timescale 1 ns / 1 ps
-`include "alu_paige.v"
+`include "alu.v"
 
 module testALU();
 	reg[31:0] operandA;
