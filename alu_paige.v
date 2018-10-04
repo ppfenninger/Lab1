@@ -204,7 +204,7 @@ module alu (
 
     generate
         genvar j;
-        for (j=1; j<32; j=j+1)
+        for (j=0; j<32; j=j+1)
         begin
             `AND2(result[j], initialResult[j], isSLTinv);
         end
