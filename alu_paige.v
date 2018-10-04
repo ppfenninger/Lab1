@@ -1,9 +1,13 @@
-`define AND and #5
-`define OR or #5
-`define XOR xor #5
-`define NOT not #5
-`define NAND nand #5
-`define NOR nor #5
+`define AND2 and #40
+`define AND3 and #60
+`define AND4 and #80
+`define OR2 or #40
+`define OR8 or #160
+`define XOR2 xor #40
+`define NOT1 not #10
+`define NAND2 nand #20
+`define NOR2 nor #20
+`define NOR32 nor #320
 
 module didOverflow // calculates overflow of 2 bits
 (
@@ -21,15 +25,15 @@ module didOverflow // calculates overflow of 2 bits
     wire notaAndNotb;
     wire negToPos;
     wire posToNeg;
-    `XOR xorgate(BxorSub, b, sub);
-    `NOT aNot(notA, a);
-    `NOT bNot(notB, BxorSub);
-    `NOT sNot(notS, s);
-    `AND andab(aAndB, a, BxorSub);
-    `AND andabNot(notaAndNotb, notA, notB);
-    `AND andSwitch1(negToPos, aAndB, notS);
-    `AND andSwitch2(posToNeg, notaAndNotb, s);
-    `OR orGate(overflow, negToPos, posToNeg);
+    `XOR2 xorgate(BxorSub, b, sub);
+    `NOT1 aNot(notA, a);
+    `NOT1 bNot(notB, BxorSub);
+    `NOT1 sNot(notS, s);
+    `AND2 andab(aAndB, a, BxorSub);
+    `AND2 andabNot(notaAndNotb, notA, notB);
+    `AND2 andSwitch1(negToPos, aAndB, notS);
+    `AND2 andSwitch2(posToNeg, notaAndNotb, s);
+    `OR2 orGate(overflow, negToPos, posToNeg);
 endmodule
 
 module AdderAndSubtractor
@@ -45,12 +49,12 @@ module AdderAndSubtractor
     wire xAorB;
     wire AandB;
     wire xAorBandCin;
-    `XOR  xorgate(BxorSub, b, isSubtract);
-    `XOR  xorgate(xAorB, a, BxorSub);   // OR gate produces AorB from A and B
-    `XOR  xorgate(res, xAorB, carryin);
-    `AND  andgate(AandB, a, BxorSub);
-    `AND  andgate(xAorBandCin, xAorB, carryin);
-    `OR   orgate(carryout, AandB, xAorBandCin);
+    `XOR2  xorgate(BxorSub, b, isSubtract);
+    `XOR2  xorgate(xAorB, a, BxorSub);   // OR gate produces AorB from A and B
+    `XOR2  xorgate(res, xAorB, carryin);
+    `AND2  andgate(AandB, a, BxorSub);
+    `AND2  andgate(xAorBandCin, xAorB, carryin);
+    `OR2   orgate(carryout, AandB, xAorBandCin);
 endmodule
 
 module aluBitSlice
@@ -91,11 +95,11 @@ module aluBitSlice
     wire isSLT;
 
      //bitwise operations for each operand
-    `AND(andRes, a, b);
-    `NAND(nandRes, a, b);
-    `OR(orRes, a, b);
-    `NOR(norRes, a, b);
-    `XOR(xorRes, a, b);
+    `AND2(andRes, a, b);
+    `NAND2(nandRes, a, b);
+    `OR2(orRes, a, b);
+    `NOR2(norRes, a, b);
+    `XOR2(xorRes, a, b);
 
     AdderAndSubtractor adder (
         .res (addSub),
@@ -105,23 +109,25 @@ module aluBitSlice
         .isSubtract (isSubtract),
         .carryin (carryIn)
     );
-     //invert selection bits
-     // Is essentially a Structual Mux for selecting which operation is being computed
-    `NOT(s0inv, s0);
-    `NOT(s1inv, s1);
-    `NOT(s2inv, s2);
 
-    //ony on of these operations will ever result in a true
-    `AND(isAdd, addSub, s0inv, s1inv, s2inv); 
-    `AND(isSub, addSub, s0, s1inv, s2inv);    
-    `AND(isXor, xorRes, s0inv, s1, s2inv); 
-    `AND(isSLT, addSub, s0, s1, s2inv);
-    `AND(isAnd, andRes, s0inv, s1inv, s2);
-    `AND(isNand, nandRes, s0, s1inv, s2);
-    `AND(isNor, norRes, s0inv, s1, s2);
-    `AND(isOr, orRes, s0, s1, s2);
+    //invert selection bits
+    // Is essentially a Structual Mux for selecting which operation is being computed
+    `NOT1(s0inv, s0);
+    `NOT1(s1inv, s1);
+    `NOT1(s2inv, s2);
+     
+     //ony on of these operations will ever result in a true
+    `AND4(isAdd, addSub, s0inv, s1inv, s2inv);
+    `AND4(isSub, addSub, s0, s1inv, s2inv);
+    `AND4(isXor, xorRes, s0inv, s1, s2inv);
+    `AND4(isSLT, addSub, s0, s1, s2inv);
+    `AND4(isAnd, andRes, s0inv, s1inv, s2);
+    `AND4(isNand, nandRes, s0, s1inv, s2);
+    `AND4(isNor, norRes, s0inv, s1, s2);
+    `AND4(isOr, orRes, s0, s1, s2);
 
-    `OR(initialResult, isAdd, isSub, isXor, isAnd, isNand, isNor, isOr, isSLT);
+
+    `OR8(initialResult, isAdd, isSub, isXor, isAnd, isNand, isNor, isOr, isSLT);
 
 endmodule
 
@@ -131,7 +137,7 @@ module isZero (
 );
 //nor all bits, if all are zero a one will be returned if any are not a 0 will be returned. 
 
-`NOR(out, bit[0], bit[1], bit[2], bit[3], bit[4], bit[5], bit[6], bit[7], bit[8], bit[9], bit[10], bit[11], bit[12], bit[13], bit[14], 
+`NOR32(out, bit[0], bit[1], bit[2], bit[3], bit[4], bit[5], bit[6], bit[7], bit[8], bit[9], bit[10], bit[11], bit[12], bit[13], bit[14], 
     bit[15], bit[16], bit[17], bit[18], bit[19], bit[20], bit[21], bit[22], bit[23], bit[24], bit[25], bit[26], bit[27], bit[28], bit[29], bit[30], bit[31]);
 
 endmodule // isZero
@@ -150,8 +156,8 @@ module alu (
     wire[32:0] carryOut; //larger to accommadate carry out bit
     wire isSubtract;
 
-    `OR(isSubtract, command[0], command[0]); // command[0] = isSubtract b001(subtract) b011(SLT) we need a one in this plac eto know if it is sutract or SLT
-    `OR(carryOut[0], isSubtract, isSubtract);  //carryOut[0] = isSubract anywhere we need to subtract we need carryout
+    `OR2(isSubtract, command[0], command[0]); // command[0] = isSubtract b001(subtract) b011(SLT) we need a one in this plac eto know if it is sutract or SLT
+    `OR2(carryOut[0], isSubtract, isSubtract);  //carryOut[0] = isSubract anywhere we need to subtract we need carryout
 
 
     generate
@@ -173,7 +179,7 @@ module alu (
         end
     endgenerate
 
-    `OR(carryout, carryOut[32], carryOut[32]); // carryout[32] = carryout set the carryout of the last bit to the final carryout
+    `OR2(carryout, carryOut[32], carryOut[32]); // carryout[32] = carryout set the carryout of the last bit to the final carryout
 
     didOverflow overflowCalc( // looks at most significant bit and checks if it will overflow
         .overflow (overflow),
@@ -190,21 +196,21 @@ module alu (
     wire isSLT;
     wire SLTval;
 
-    `NOT(s2inv, command[2]);
-    `NOT(overflowInv, overflow);
-    `AND(isSLT, s2inv, command[0], command[1]);
-    `NOT(isSLTinv, isSLT);
-    `AND(SLTval, initialResult[31], overflowInv, isSLT);
+    `NOT1(s2inv, command[2]);
+    `NOT1(overflowInv, overflow);
+    `AND3(isSLT, s2inv, command[0], command[1]);
+    `NOT1(isSLTinv, isSLT);
+    `AND3(SLTval, initialResult[31], overflowInv, isSLT);
 
     generate
         genvar j;
         for (j=1; j<32; j=j+1)
         begin
-            `AND(result[j], initialResult[j], isSLTinv);
+            `AND2(result[j], initialResult[j], isSLTinv);
         end
     endgenerate
 
-    `OR(result[0], initialResult[0], SLTval);
+    `OR2(result[0], initialResult[0], SLTval);
 
     // determines if result is zero
     isZero zeroCalc(
